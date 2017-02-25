@@ -15,8 +15,6 @@ import pandas as pd
 
 
 from pandas.tools.plotting import scatter_matrix
-from pyspark.sql import SQLContext
-from pyspark import SparkContext, SparkConf
 
 #try:
 #    sc.stop()
@@ -31,11 +29,7 @@ __all__ = [
 class Analyze():
     """ A class for data analysis """
 
-    data = None
-    X = None
-    y = None
-
-    def __init__(self, definer, sparkcontext):
+    def __init__(self, definer):
         """The init class.
 
         Parameters
@@ -51,38 +45,21 @@ class Analyze():
         self.typeAlgorithm = definer.typeAlgorithm
         self.className = definer.className
         self.nameData = definer.nameData
-        self.sparkcontext = sparkcontext
+        self.data = definer.data
 
     def pipeline(self):
 
         analyzers = []
-        analyzers.append(self.read)
+
         analyzers.append(self.hist)
         analyzers.append(self.density)
         analyzers.append(self.corr)
         analyzers.append(self.scatter)
 
         [m() for m in analyzers]
-
-
-    def read(self):
-        """Read the dataset.
-
-        Returns
-        -------
-        out : ndarray
-
-        """
-        #config = SparkConf()
-        #sc = SparkContext()
-        sqlContext = SQLContext(self.sparkcontext)
-        pdf = pd.read_csv(self.nameData)
-        Analyze.data = sqlContext.createDataFrame(pdf)
-        #Analyze.data = data.ix[:, data.columns != self.className]
-        Analyze.X = Analyze.data.drop(self.className)#.show()
-        Analyze.y = Analyze.data.select(self.className)
-        #return Analyze.X
-
+        
+        return self
+    
     def description(self):
         """Shows a basic data description .
 
@@ -91,7 +68,8 @@ class Analyze():
         out : ndarray
 
         """
-        return Analyze.X.describe()
+        #return self.data.describe()
+        return pd.DataFrame(self.data.describe())
 
     def classBalance(self):
         """Shows how balanced the class values are.
@@ -102,31 +80,52 @@ class Analyze():
         Serie showing the count of classes.
 
         """
-        return Analyze.y.groupby(self.className).count()
+        return self.data.toPandas().groupby(self.className).size()
 
-    def hist(self):
-        
-        Analyze.data.toPandas().hist(color=[(0.196, 0.694, 0.823)]) 
-        plt.show()
+    def hist(self, ax=None):
+        #plt.figure(figsize=(10.8, 3.6))
+        #for column in df:
+            #df[column].hist(color=[(0.196, 0.694, 0.823)], ax=ax, align='left', label = 'Frequency bar of subsectors') 
+        self.data.toPandas().hist(color=[(0.196, 0.694, 0.823)], ax=ax, label='frecuencia') 
+        plt.legend(loc='best')
+        if ax is None:
+            plt.show()
 
-    def density(self):
+    def density(self, ax=None):
         #Analyze.data.plot(color=[(0.196, 0.694, 0.823)], kind='density', 
                 #subplots=True, layout=(3,3), sharex=False, figsize = (10, 10)) 
-        Analyze.data.toPandas().plot(kind='density', 
-                subplots=True, layout=(3,3), sharex=False) 
-        plt.show()
+        self.data.toPandas().plot(kind='density', 
+                subplots=True, layout=(3,3), sharex=False, ax=ax) 
+        if ax is None:
+            plt.show()
 
-    def corr(self):
-        corr = Analyze.data.toPandas().corr()
-        fig, ax = plt.subplots()
-        bar = ax.matshow(corr, vmin=-1, vmax=1)
+    def corr(self, ax=None):
+        corr = self.data.toPandas().corr()
+        names = list(self.data.toPandas().columns.values)
+        fig, ax1 = plt.subplots()
+
+        if ax is not None:
+            bar = ax.matshow(corr, vmin=-1, vmax=1)
+        else:
+            bar = ax1.matshow(corr, vmin=-1, vmax=1)
+
         fig.colorbar(bar)
-        plt.xticks(range(len(corr.columns)), corr.columns);
-        plt.yticks(range(len(corr.columns)), corr.columns);
-        plt.show()
+        #plt.xticks(range(len(corr.columns)), corr.columns)
+        #plt.yticks(range(len(corr.columns)), corr.columns)
+        ax.set_xticks(range(len(corr.columns)))
+        ax.set_yticks(range(len(corr.columns)))
+        ax.set_xticklabels(names)
+        ax.set_yticklabels(names)
 
-    def scatter(self):
-        pdf = Analyze.data.toPandas()
-        scatter_matrix(pdf, alpha=0.7, figsize=(6, 6), diagonal='kde')
-        plt.show()
+        if ax is None:
+            plt.show()
 
+    def scatter(self, ax=None):
+        scatter_matrix(self.data.toPandas(), alpha=0.7, figsize=(6, 6), diagonal='kde', ax=ax)
+        if ax is None:
+            plt.show()
+        
+    def box(self, ax=None):
+        self.data.toPandas().plot(kind="box" , subplots=True, layout=(3,3), sharex=False, sharey=False, ax=ax)
+        if ax is None:
+            plt.show()
