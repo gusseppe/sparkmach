@@ -12,13 +12,9 @@ from __future__ import print_function
 import numpy as np
 import pandas as pd
 
-from sklearn.feature_selection import SelectKBest
-from sklearn.feature_selection import chi2
-from sklearn.feature_selection import f_regression
-from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.decomposition import PCA
-from sklearn.pipeline import Pipeline, FeatureUnion
-from sklearn.base import BaseEstimator, TransformerMixin
+from pyspark.ml import Pipeline
+from pyspark.ml import Estimator, Transformer
+from pyspark.ml.feature import ChiSqSelector
 
 __all__ = [
     'read']
@@ -41,25 +37,19 @@ class FeatureSelection():
 
         transformers = []
 
-        custom = self.CustomFeature()
+        #custom = self.CustomFeature()
         #transformers.append(('custom', custom))
         n_features = int(self.n_features/2)
 
-        #kbest = SelectKBest(score_func=chi2, k=n_features)
-        #transformers.append(('kbest', kbest))
+        chisq = ChiSqSelector(numTopFeatures=n_features, featuresCol="scaledFeatures",
+                         outputCol="selectedFeatures", labelCol=self.className+"Index")
+        transformers.append(chisq)
 
-        pca = PCA(n_components=n_features)
-        transformers.append(('pca', pca))
 
-        extraTC = ExtraTreesClassifier()
-        transformers.append(('extraTC', extraTC))
+        return transformers
+        #return Pipeline(stages=transformers)
 
-        #scaler = StandardScaler()
-        #transformers.append(('scaler', scaler))
-        #binarizer = Binarizer()
-        return FeatureUnion(transformers)
-
-    class CustomFeature(TransformerMixin):
+    class CustomFeature(Estimator, Transformer):
         """ A custome class for featuring """
 
         def transform(self, X, **transform_params):

@@ -13,8 +13,9 @@ import numpy as np
 import pandas as pd
 from pyspark.ml import Pipeline
 from pyspark.ml import Estimator, Transformer
-from pyspark.ml.feature import MinMaxScaler, Normalizer,\
-StandardScaler
+from pyspark.ml.feature import VectorAssembler
+from pyspark.ml.feature import MinMaxScaler, Normalizer, StandardScaler
+from pyspark.ml.feature import StringIndexer
 
 __all__ = [
     'pipeline']
@@ -30,7 +31,7 @@ class Prepare():
         self.definer = definer
         self.typeModel = definer.typeModel
         self.typeAlgorithm = definer.typeAlgorithm
-        #self.className = definer.className
+        self.className = definer.className
         self.nameData = definer.nameData
 
     def pipeline(self):
@@ -42,8 +43,8 @@ class Prepare():
         #transformers.append(('clean', FunctionTransformer(clean, validate=False)))
         #transformers.append(('clean', clean))
 
-        #catToNumeric = self.CategoricalToNumeric()
-        #transformers.append(('catToNumeric', catToNumeric))
+        assembler = VectorAssembler(inputCols=self.definer.X.columns, outputCol="features")
+        transformers.append(assembler)
 
         if self.typeAlgorithm in ["NeuralN", "K-N"]:
             minmax = MinMaxScaler(inputCol="features", outputCol="scaledFeatures")
@@ -60,8 +61,11 @@ class Prepare():
             scaler = StandardScaler(inputCol="features", outputCol="scaledFeatures", withMean = True, withStd = True)
             transformers.append(scaler)
 
-        return Pipeline(stages=transformers)
+        stringIndexer = StringIndexer(inputCol=self.className, outputCol=self.className+"Index")
+        transformers.append(stringIndexer)
         
+        return transformers
+        #return Pipeline(stages=transformers)
         #return FeatureUnion(transformers)
 
     class Clean(Estimator, Transformer):
