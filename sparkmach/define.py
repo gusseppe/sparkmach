@@ -12,7 +12,7 @@ dar una idea de los posibles algoritmos que pueden ser usados.
 import pandas as pd
 from pyspark.sql import SQLContext
 #from pyspark import SparkContext, SparkConf#version 1.62
-from pyspark.sql import SparkSession
+
         
 #try:
 #    from pyspark.ml.linalg import Vectors#Version 2                    
@@ -30,8 +30,8 @@ class Define():
     X = None
     y = None
 
-    def __init__(self, nameData=None, header=None, className=None):
-        #self.sparkcontext = sparkcontext
+    def __init__(self, spark, nameData=None, header=None, className='class'):
+        self.spark = spark
         self.nameData = nameData
         self.header = header
         self.className = className
@@ -57,11 +57,11 @@ class Define():
         """
         try:   
             #sqlContext = SQLContext(self.sparkcontext)#version 1.62
-            spark = SparkSession \
-            .builder \
-            .appName("Sparkmach") \
-            .config("spark.some.config.option", "some-value") \
-            .getOrCreate()
+            #spark = SparkSession \
+            #.builder \
+            #.appName("Sparkmach") \
+            #.config("spark.some.config.option", "some-value") \
+            #.getOrCreate()
             
             if self.nameData is not None and self.className is not None: 
                 if self.header is not None:
@@ -69,13 +69,13 @@ class Define():
                     pdf = pd.read_csv(self.nameData, names=self.header)
                     pdf.dropna(inplace=True)#Future optimization by using DF API.
                     #Define.data = sqlContext.createDataFrame(pdf)#version 1.62
-                    Define.data = spark.createDataFrame(pdf)
+                    Define.data = self.spark.createDataFrame(pdf)
                     Define.header = self.header
 
                 else:    
                     pdf = pd.read_csv(self.nameData)
                     #Define.data = sqlContext.createDataFrame(pdf)#version 1.62
-                    Define.data = spark.createDataFrame(pdf)
+                    Define.data = self.spark.createDataFrame(pdf)
 
                 Define.X = Define.data.drop(self.className)#.show()
                 Define.y = Define.data.select(self.className)

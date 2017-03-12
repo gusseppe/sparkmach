@@ -1,0 +1,5 @@
+1. levantar el hadoop.
+2. spark
+3. ver la carpeta sparkPrograms/sparkmach y modificar 
+el achivo sparkmach.py usando el archivo batch_main.py.
+4. luego hacer el submit (ver github de piero)
