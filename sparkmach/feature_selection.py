@@ -9,9 +9,6 @@ for feature selection the dataset which is to be studied.
 
 """
 from __future__ import print_function
-import numpy as np
-import pandas as pd
-
 from pyspark.ml import Pipeline
 from pyspark.ml import Estimator, Transformer
 from pyspark.ml.feature import ChiSqSelector

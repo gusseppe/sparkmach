@@ -9,7 +9,7 @@ Sea de clasificacion, regression, clustering. Ademas se debe
 dar una idea de los posibles algoritmos que pueden ser usados.
 """
 
-import pandas as pd
+
 from pyspark.sql import SQLContext
 #from pyspark import SparkContext, SparkConf#version 1.62
 
@@ -30,8 +30,8 @@ class Define():
     X = None
     y = None
 
-    def __init__(self, spark, nameData=None, header=None, className='class'):
-        self.spark = spark
+    def __init__(self, sparkSession, nameData=None, header=None, className='class'):
+        self.sparkSession = sparkSession
         self.nameData = nameData
         self.header = header
         self.className = className
@@ -64,18 +64,18 @@ class Define():
             #.getOrCreate()
             
             if self.nameData is not None and self.className is not None: 
-                if self.header is not None:
+                df = self.sparkSession.read\
+                .format("csv")\
+                .option("header", "true")\
+                .option("mode", "DROPMALFORMED")\
+                .csv(name)
 
-                    pdf = pd.read_csv(self.nameData, names=self.header)
-                    pdf.dropna(inplace=True)#Future optimization by using DF API.
-                    #Define.data = sqlContext.createDataFrame(pdf)#version 1.62
-                    Define.data = self.spark.createDataFrame(pdf)
+                df = df.dropna()
+                Define.data = df
+                
+                if self.header is not None:
                     Define.header = self.header
 
-                else:    
-                    pdf = pd.read_csv(self.nameData)
-                    #Define.data = sqlContext.createDataFrame(pdf)#version 1.62
-                    Define.data = self.spark.createDataFrame(pdf)
 
                 Define.X = Define.data.drop(self.className)#.show()
                 Define.y = Define.data.select(self.className)
