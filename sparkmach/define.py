@@ -68,7 +68,8 @@ class Define():
                 .format("csv")\
                 .option("header", "true")\
                 .option("mode", "DROPMALFORMED")\
-                .csv(name)
+                .option("inferSchema", "true")\
+                .csv(self.nameData)
 
                 df = df.dropna()
                 Define.data = df

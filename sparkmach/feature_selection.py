@@ -38,9 +38,9 @@ class FeatureSelection():
         #transformers.append(('custom', custom))
         n_features = int(self.n_features/2)
 
-        chisq = ChiSqSelector(numTopFeatures=n_features, featuresCol="scaledFeatures",
-                         outputCol="selectedFeatures", labelCol=self.className+"Index")
-        transformers.append(chisq)
+        #chisq = ChiSqSelector(numTopFeatures=n_features, featuresCol="scaledFeatures",
+        #                 outputCol="selectedFeatures", labelCol=self.className+"Index")
+        #transformers.append(chisq)
 
 
         return transformers

@@ -59,8 +59,9 @@ class Prepare():
             scaler = StandardScaler(inputCol="features", outputCol="scaledFeatures", withMean = True, withStd = True)
             transformers.append(scaler)
 
-        stringIndexer = StringIndexer(inputCol=self.className, outputCol=self.className+"Index")
-        transformers.append(stringIndexer)
+        #For clasification    
+        #stringIndexer = StringIndexer(inputCol=self.className, outputCol=self.className+"Index")
+        #transformers.append(stringIndexer)
         
         return transformers
         #return Pipeline(stages=transformers)
