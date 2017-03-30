@@ -118,7 +118,7 @@ class Evaluate():
 
         report = [["Model", "Score", "Time"]]
         names = []
-        duration = 0
+        total_time = 0
 
         for name, pipeline in Evaluate.pipelines:
             
@@ -138,6 +138,7 @@ class Evaluate():
             prediction = cvModel.transform(Evaluate.test)
             metric = evaluator.evaluate(prediction)
             duration = end-start
+            total_time += duration
             # save the model to disk
             #filename = name+'.ml'
             #pickle.dump(model, open('./models/'+filename, 'wb'))
@@ -147,6 +148,7 @@ class Evaluate():
             #print(report_print)
 
         
+        report.append(['Total time', '-', total_time])
         headers = report.pop(0)
         df_report = self.definer.sparkSession.createDataFrame(report, headers)
         self.chooseTopRanked(df_report)
@@ -157,7 +159,7 @@ class Evaluate():
         """" Sort the models by its score"""
              
         Evaluate.report = report.sort(col("Score").desc())
-        Evaluate.report.write.csv("output")
+        #Evaluate.report.write.csv("output")
         
         print(Evaluate.report.show(truncate=False))
 
