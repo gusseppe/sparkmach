@@ -32,8 +32,7 @@ name = "hdfs://King:9000/user/bdata/buses_10000_filtered.csv"
 className = "tiempoRecorrido"
 
 sparkSession = SparkSession.builder \
-#.master('local')\
-.master('spark://King:7077')\
+.master('spark://King:7077')\#.master('local')\
 .appName("Sparkmach") \
 .config("spark.driver.allowMultipleContexts", "true")\
 .getOrCreate()

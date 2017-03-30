@@ -8,6 +8,7 @@ This module provides ideas for evaluating some machine learning algorithms.
 
 """
 from __future__ import print_function
+import time
 #import numpy as np
 #import pandas as pd
 #import operator
@@ -115,8 +116,9 @@ class Evaluate():
 
         self.defineTrainingData(test_size, seed)
 
-        report = [["Model", "Score"]]
+        report = [["Model", "Score", "Time"]]
         names = []
+        duration = 0
 
         for name, pipeline in Evaluate.pipelines:
             
@@ -124,7 +126,7 @@ class Evaluate():
             paramGrid = ParamGridBuilder()\
             .build()
     
-    
+            start = time.time()
             crossval = CrossValidator(estimator=pipeline,\
                           estimatorParamMaps=paramGrid,\
                           evaluator=evaluator,\
@@ -132,15 +134,16 @@ class Evaluate():
             
             
             cvModel = crossval.fit(Evaluate.train)
+            end = time.time()
             prediction = cvModel.transform(Evaluate.test)
             metric = evaluator.evaluate(prediction)
-            
+            duration = end-start
             # save the model to disk
             #filename = name+'.ml'
             #pickle.dump(model, open('./models/'+filename, 'wb'))
     
             names.append(name)
-            report.append([name, metric])
+            report.append([name, metric, duration])
             #print(report_print)
 
         
@@ -154,7 +157,8 @@ class Evaluate():
         """" Sort the models by its score"""
              
         Evaluate.report = report.sort(col("Score").desc())
-
+        Evaluate.report.write.csv("output")
+        
         print(Evaluate.report.show(truncate=False))
 
     def setBestPipelines(self):
