@@ -75,7 +75,7 @@ class Evaluate():
 
         #Regression algorithms
         #models.append(('LinearRegression', LinearRegression(labelCol=self.definer.className,\
-                                                            featuresCol='scaledFeatures')))
+        #                                                    featuresCol='scaledFeatures')))
         models.append(('GeneralizedLinearRegression', GeneralizedLinearRegression(labelCol=self.definer.className,\
                                                                                   featuresCol='scaledFeatures')))
         models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.className, \
