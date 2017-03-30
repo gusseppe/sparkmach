@@ -27,12 +27,13 @@ try:
 except:
     pass
     
-name = "datasets/buses_10000_filtered.csv"
-#     name = "hdfs://King:9000/user/bdata/mta_data/MTA-Bus-Time_.2014-08-01.txt"
+#name = "datasets/buses_10000_filtered.csv"
+name = "hdfs://King:9000/user/bdata/buses_10000_filtered.csv"
 className = "tiempoRecorrido"
 
 sparkSession = SparkSession.builder \
-.master('local')\
+#.master('local')\
+.master('spark://King:7077')\
 .appName("Sparkmach") \
 .config("spark.driver.allowMultipleContexts", "true")\
 .getOrCreate()
