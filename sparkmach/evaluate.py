@@ -79,7 +79,7 @@ class Evaluate():
         models.append(('GeneralizedLinearRegression', GeneralizedLinearRegression(labelCol=self.definer.className,\
                                                                                   featuresCol='scaledFeatures')))
         models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.className, \
-        #                                                              featuresCol='scaledFeatures')))
+                                                                      featuresCol='scaledFeatures')))
         #models.append(('RandomForestRegressor', RandomForestRegressor(labelCol=self.definer.className, \
         #                                                              featuresCol='scaledFeatures')))
         #models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.className, \
