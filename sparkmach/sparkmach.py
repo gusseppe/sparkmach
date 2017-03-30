@@ -61,17 +61,11 @@ definer = define.Define(sparkSession, nameData=name, className=className).pipeli
 # STEP 2: Prepare data by scaling, normalizing, etc. 
 preparer = prepare.Prepare(definer).pipeline()
 
-#     #STEP 3: Feature selection
+#STEP 3: Feature selection
 featurer = feature_selection.FeatureSelection(definer).pipeline()
 
-#     #STEP4: Evalute the algorithms by using the pipelines
-    #evaluator = evaluate.Evaluate(definer, preparer, featurer).pipeline()
-
-chains = preparer + featurer
-pip = Pipeline(stages=chains)
-result = pip.fit(definer.data).transform(definer.data)
-
-print result
+#STEP4: Evalute the algorithms by using the pipelines
+evaluator = evaluate.Evaluate(definer, preparer, featurer).pipeline()
 
 
 # start = time.time()
