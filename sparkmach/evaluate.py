@@ -78,12 +78,12 @@ class Evaluate():
                                                             featuresCol='scaledFeatures')))
         models.append(('GeneralizedLinearRegression', GeneralizedLinearRegression(labelCol=self.definer.className,\
                                                                                   featuresCol='scaledFeatures')))
-        models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.className, \
-                                                                      featuresCol='scaledFeatures')))
-        models.append(('RandomForestRegressor', RandomForestRegressor(labelCol=self.definer.className, \
-                                                                      featuresCol='scaledFeatures')))
-        models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.className, \
-                                                    featuresCol='scaledFeatures')))
+        #models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.className, \
+        #                                                              featuresCol='scaledFeatures')))
+        #models.append(('RandomForestRegressor', RandomForestRegressor(labelCol=self.definer.className, \
+        #                                                              featuresCol='scaledFeatures')))
+        #models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.className, \
+        #                                            featuresCol='scaledFeatures')))
         #models.append(('AFTSurvivalRegression', AFTSurvivalRegression(labelCol=self.definer.className, \
         #                                                              featuresCol='scaledFeatures')))
        
@@ -118,7 +118,7 @@ class Evaluate():
 
         report = [["Model", "Score", "Time"]]
         names = []
-        total_time = 0
+        total_time = 0.0
 
         for name, pipeline in Evaluate.pipelines:
             
@@ -148,7 +148,7 @@ class Evaluate():
             #print(report_print)
 
         
-        report.append(['Total time', '-', total_time])
+        report.append(['Total time', 0.0, total_time])
         headers = report.pop(0)
         df_report = self.definer.sparkSession.createDataFrame(report, headers)
         self.chooseTopRanked(df_report)
@@ -161,7 +161,7 @@ class Evaluate():
         Evaluate.report = report.sort(col("Score").desc())
         #Evaluate.report.write.csv("output")
         
-        print(Evaluate.report.show(truncate=False))
+        Evaluate.report.show(truncate=False)
 
     def setBestPipelines(self):
         alg = list(Evaluate.report.Model)[0:2]
