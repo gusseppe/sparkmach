@@ -76,14 +76,14 @@ class Evaluate():
         #Regression algorithms
         #models.append(('LinearRegression', LinearRegression(labelCol=self.definer.className,\
         #                                                    featuresCol='scaledFeatures')))
-        models.append(('GeneralizedLinearRegression', GeneralizedLinearRegression(labelCol=self.definer.className,\
-                                                                                  featuresCol='scaledFeatures')))
-        models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.className, \
-                                                                      featuresCol='scaledFeatures')))
+        #models.append(('GeneralizedLinearRegression', GeneralizedLinearRegression(labelCol=self.definer.className,\
+        #                                                                          featuresCol='scaledFeatures')))
+        #models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.className, \
+        #                                                              featuresCol='scaledFeatures')))
         #models.append(('RandomForestRegressor', RandomForestRegressor(labelCol=self.definer.className, \
         #                                                              featuresCol='scaledFeatures')))
-        #models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.className, \
-        #                                            featuresCol='scaledFeatures')))
+        models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.className, \
+                                                    featuresCol='scaledFeatures')))
         #models.append(('AFTSurvivalRegression', AFTSurvivalRegression(labelCol=self.definer.className, \
         #                                                              featuresCol='scaledFeatures')))
        
@@ -140,7 +140,8 @@ class Evaluate():
             duration = end-start
             total_time += duration
             # save the model to disk
-            #filename = name+'.ml'
+            filename = name+'.ml'
+            cvModel.bestModel.save('./models/'+filename)
             #pickle.dump(model, open('./models/'+filename, 'wb'))
     
             names.append(name)
