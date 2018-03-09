@@ -33,7 +33,9 @@ sparkSession.sparkContext.addPyFile(currentDir + "/prepare.py")
 sparkSession.sparkContext.addPyFile(currentDir + "/feature_selection.py")
 sparkSession.sparkContext.addPyFile(currentDir + "/evaluate.py")
 
-rdd = sparkSession.sparkContext.textFile(currentDir + '/datasets/MTA-Bus-Time_.2014-08-01.txt')
+#rdd = sparkSession.sparkContext.textFile(currentDir + '/datasets/MTA-Bus-Time_.2014-08-01.txt')
+rdd = sparkSession.sparkContext.textFile("hdfs://King:9000/user/bdata/mta_data/MTA-Bus-Time_.2014-08-16.txt")
+
 # rdd = sparkSession.sparkContext.textFile(currentDir + '/datasets/test.txt')
 # rdd = sc.textFile('hdfs://King:9000/user/bdata/mta_data/MTA-Bus-Time_.2014-10-31.txt')
 
