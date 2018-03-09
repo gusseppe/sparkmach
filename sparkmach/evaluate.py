@@ -141,7 +141,9 @@ class Evaluate():
             total_time += duration
             # save the model to disk
             filename = name+'.ml'
-            cvModel.bestModel.save('./models/'+filename)
+            
+            cvModel.bestModel.save("hdfs://King:9000/user/bdata/mta_pipelines/"+filename)
+            #cvModel.bestModel.save('./models/'+filename)
             #pickle.dump(model, open('./models/'+filename, 'wb'))
     
             names.append(name)
