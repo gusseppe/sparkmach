@@ -18,7 +18,7 @@ className = "class"
 
 
 sparkSession = SparkSession.builder \
-.master('local[*]')\
+.master('spark://King:7077')\
 .appName("Sparkmach") \
 .config("spark.driver.allowMultipleContexts", "true")\
 .getOrCreate()
