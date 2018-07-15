@@ -82,19 +82,16 @@ class Evaluate():
         #                                                              featuresCol='scaledFeatures')))
         #models.append(('RandomForestRegressor', RandomForestRegressor(labelCol=self.definer.className, \
         #                                                              featuresCol='scaledFeatures')))
-        models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.className, \
-                                                    featuresCol='scaledFeatures')))
+        #models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.className, \
+        #                                            featuresCol='scaledFeatures')))
         #models.append(('AFTSurvivalRegression', AFTSurvivalRegression(labelCol=self.definer.className, \
         #                                                              featuresCol='scaledFeatures')))
-<<<<<<< HEAD
         
         #Classification algorithms
         models.append(('LogisticRegression', LogisticRegression(labelCol=self.definer.className,\
                                                             featuresCol='scaledFeatures')))
         models.append(('RandomForestClassifier', RandomForestClassifier(labelCol=self.definer.className,\
                                                                                   featuresCol='scaledFeatures')))
-=======
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
        
 
         return models
@@ -121,13 +118,10 @@ class Evaluate():
         test_size = 0.2
         num_folds = 10
         seed = 7
-<<<<<<< HEAD
-        #score = "r2"
         score = "accuracy"
-=======
-        score = "r2"
 
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
+        #score = "r2"
+        
         self.defineTrainingData(test_size, seed)
 
         report = [["Model", "Score", "Time"]]
@@ -136,12 +130,9 @@ class Evaluate():
 
         for name, pipeline in Evaluate.pipelines:
             
-<<<<<<< HEAD
+
             #evaluator = RegressionEvaluator(labelCol=self.definer.className, predictionCol="prediction", metricName=score)
             evaluator = MulticlassClassificationEvaluator(labelCol=self.definer.className, predictionCol="prediction", metricName=score)
-=======
-            evaluator = RegressionEvaluator(labelCol=self.definer.className, predictionCol="prediction", metricName=score)
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
             paramGrid = ParamGridBuilder()\
             .build()
     
@@ -157,32 +148,19 @@ class Evaluate():
             prediction = cvModel.transform(Evaluate.test)
             metric = evaluator.evaluate(prediction)
             duration = end-start
-<<<<<<< HEAD
             total_time += duration / 60.0
             # save the model to disk
             filename = name+'.ml'
-<<<<<<< HEAD
-=======
             
-            cvModel.bestModel.save("hdfs://King:9000/user/bdata/mta_pipelines/"+filename)
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
-=======
+            #cvModel.bestModel.save("hdfs://King:9000/user/bdata/mta_pipelines/"+filename)
             total_time += duration
             # save the model to disk
             filename = name+'.ml'
-            
-            cvModel.bestModel.save("hdfs://King:9000/user/bdata/mta_pipelines/"+filename)
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
             #cvModel.bestModel.save('./models/'+filename)
             #pickle.dump(model, open('./models/'+filename, 'wb'))
     
             names.append(name)
-<<<<<<< HEAD
             report.append([name, metric, duration/60.0])
-=======
-            report.append([name, metric, duration])
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
-            #print(report_print)
 
         
         report.append(['Total time', 0.0, total_time])
@@ -196,11 +174,7 @@ class Evaluate():
         """" Sort the models by its score"""
              
         Evaluate.report = report.sort(col("Score").desc())
-<<<<<<< HEAD
         Evaluate.report.write.overwrite().csv('hdfs://King:9000/user/bdata/cern/report.csv', header=True)
-=======
-        #Evaluate.report.write.csv("output")
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
         
         Evaluate.report.show(truncate=False)
 
