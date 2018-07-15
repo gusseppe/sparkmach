@@ -66,26 +66,7 @@ class Define():
             #.getOrCreate()
             if self.df is not None:
                 df = self.df.dropna()
-                
-<<<<<<< HEAD
-<<<<<<< HEAD
-                #df = df.withColumn("class", col("class").cast('float'))
-                #df = df.withColumn("bus_id", col("bus_id").cast('float'))
-                #df = df.withColumn("direction", col("direction").cast('float'))
-                #df = df.withColumn("half_hour_bucket", col("half_hour_bucket").cast('float'))
-=======
-=======
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
-                df = df.withColumn("class", col("class").cast('float'))
-                df = df.withColumn("bus_id", col("bus_id").cast('float'))
-                df = df.withColumn("direction", col("direction").cast('float'))
-                df = df.withColumn("half_hour_bucket", col("half_hour_bucket").cast('float'))
-<<<<<<< HEAD
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
-=======
->>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
-                
-                
+                              
                 Define.data = df.dropna()
                 
                 if self.header is not None:
