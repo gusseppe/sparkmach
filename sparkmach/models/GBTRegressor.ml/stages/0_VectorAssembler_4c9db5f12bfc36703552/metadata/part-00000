@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.VectorAssembler","timestamp":1521323452044,"sparkVersion":"2.2.1","uid":"VectorAssembler_4c9db5f12bfc36703552","paramMap":{"inputCols":["deadCars","flux","queue","time","density","totalCars"],"outputCol":"features"}}
