@@ -19,7 +19,11 @@ className = "class"
 
 sparkSession = SparkSession.builder \
 <<<<<<< HEAD
+<<<<<<< HEAD
 .master('local[*]')\
+=======
+.master('spark://King:7077')\
+>>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
 =======
 .master('spark://King:7077')\
 >>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
@@ -38,7 +42,13 @@ sparkSession.sparkContext.addPyFile(currentDir + "/feature_selection.py")
 sparkSession.sparkContext.addPyFile(currentDir + "/evaluate.py")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 rdd = sparkSession.sparkContext.textFile(currentDir + '/datasets/MTA-Bus-Time_.2014-08-01.txt')
+=======
+#rdd = sparkSession.sparkContext.textFile(currentDir + '/datasets/MTA-Bus-Time_.2014-08-01.txt')
+rdd = sparkSession.sparkContext.textFile("hdfs://King:9000/user/bdata/mta_data/MTA-Bus-Time_.2014-08-16.txt")
+
+>>>>>>> 7fa519a798fcb10f2f0ee2c4bbebda6f9ed2b90b
 =======
 #rdd = sparkSession.sparkContext.textFile(currentDir + '/datasets/MTA-Bus-Time_.2014-08-01.txt')
 rdd = sparkSession.sparkContext.textFile("hdfs://King:9000/user/bdata/mta_data/MTA-Bus-Time_.2014-08-16.txt")
