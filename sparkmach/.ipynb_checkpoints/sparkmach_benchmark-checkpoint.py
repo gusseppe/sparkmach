@@ -14,9 +14,9 @@ from pyspark.sql.types import *
 
 #name = "datasets/buses_10000_filtered.csv"
 #name = "hdfs://King:9000/user/bdata/cern/hepmass_2000000_report.csv"
-current_path = os.getcwd()
-
-
+#current_path = os.getcwd() # For notebook
+current_path = os.path.dirname(os.path.abspath(__file__)) # For files
+print(current_path)
 data_path = os.path.join(current_path, 'hepmass.csv')
 response = "label"
 #cluster_manager = 'yarn'
