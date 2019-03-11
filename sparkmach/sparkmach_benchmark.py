@@ -20,10 +20,10 @@ print(current_path)
 data_path = os.path.join(current_path, 'hepmass.csv')
 response = "label"
 #cluster_manager = 'yarn'
-cluster_manager = 'local[*]'
+#cluster_manager = 'local[*]'
 
 spark_session = SparkSession.builder \
-.master(cluster_manager)\
+#.master(cluster_manager)\
 .appName("Sparkmach") \
 .config("spark.driver.allowMultipleContexts", "true")\
 .getOrCreate()
