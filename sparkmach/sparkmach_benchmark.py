@@ -34,25 +34,38 @@ spark_session.sparkContext.addPyFile(os.path.join(current_path, 'prepare.py'))
 spark_session.sparkContext.addPyFile(os.path.join(current_path, 'feature_selection.py'))
 spark_session.sparkContext.addPyFile(os.path.join(current_path, 'evaluate.py'))
 spark_session.sparkContext.addPyFile(os.path.join(current_path, 'tools.py'))
+##### Benchmark starting #####
+print('Benchmark starting:')
 
-##### Generate dataframe #####
+list_n_samples = [10, 100, 1000]
+list_n_features = [5, 10, 15]
+print('List number of samples:', list_n_samples)
+print('List number of features:', list_n_features)
 
-df = tools.generate_dataframe(spark_session, n_samples=10, n_features=5, seed=42)
-df.show(3)
+for n_samples in list_n_samples:
+    for n_features in list_n_features:
+        
+        ##### Generate the dataframe #####
+        print('Generating the binary labeled dataframe: shape:', n_samples, n_features)
+        df = tools.generate_dataframe(spark_session, n_samples=n_samples, 
+                                      n_features=n_features, seed=42)
+        # df.show(3)
 
-##### Run the  models #####
+        ##### Run the models #####
+        print('Running the models')
 
-# STEP 0: Define workflow parameters
-definer = define.Define(spark_session, data_path=data_path, response=response).pipeline()
+        # STEP 0: Define workflow parameters
+        #definer = define.Define(spark_session, data_path=data_path, response=response).pipeline()
+        definer = define.Define(spark_session, df=df, response='response').pipeline()
 
-# STEP 1: Analyze data by ploting it
-#analyze.Analyze(definer).pipeline()
+        # STEP 1: Analyze data by ploting it
+        #analyze.Analyze(definer).pipeline()
 
-# STEP 2: Prepare data by scaling, normalizing, etc. 
-preparer = prepare.Prepare(definer).pipeline()
+        # STEP 2: Prepare data by scaling, normalizing, etc. 
+        preparer = prepare.Prepare(definer).pipeline()
 
-#STEP 3: Feature selection
-featurer = feature_selection.FeatureSelection(definer).pipeline()
+        #STEP 3: Feature selection
+        featurer = feature_selection.FeatureSelection(definer).pipeline()
 
-#STEP4: Evalute the algorithms by using the pipelines
-evaluator = evaluate.Evaluate(definer, preparer, featurer).pipeline()
+        #STEP4: Evalute the algorithms by using the pipelines
+        evaluator = evaluate.Evaluate(definer, preparer, featurer).pipeline()
