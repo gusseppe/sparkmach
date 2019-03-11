@@ -47,7 +47,7 @@ class Evaluate():
     """ A class for resampling and evaluation """
 
     report = None
-    bestPipelines = None
+    best_pipelines = None
     pipelines = None
     train = None
     test = None
@@ -62,41 +62,41 @@ class Evaluate():
     def pipeline(self):
 
         #evaluators = []
-        self.buildPipelines(self.defineAlgorithms())
-        self.evaluatePipelines()
+        self.build_pipelines(self.set_models())
+        self.evaluate_pipelines()
         #self.setBestPipelines()
 
         #[m() for m in evaluators]
         return self
 
-    def defineAlgorithms(self):
+    def set_models(self):
 
         models = []
 
         #Regression algorithms
-        #models.append(('LinearRegression', LinearRegression(labelCol=self.definer.className,\
+        #models.append(('LinearRegression', LinearRegression(labelCol=self.definer.response,\
         #                                                    featuresCol='scaledFeatures')))
-        #models.append(('GeneralizedLinearRegression', GeneralizedLinearRegression(labelCol=self.definer.className,\
+        #models.append(('GeneralizedLinearRegression', GeneralizedLinearRegression(labelCol=self.definer.response,\
         #                                                                          featuresCol='scaledFeatures')))
-        #models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.className, \
+        #models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.response, \
         #                                                              featuresCol='scaledFeatures')))
-        #models.append(('RandomForestRegressor', RandomForestRegressor(labelCol=self.definer.className, \
+        #models.append(('RandomForestRegressor', RandomForestRegressor(labelCol=self.definer.response, \
         #                                                              featuresCol='scaledFeatures')))
-        #models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.className, \
+        #models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.response, \
         #                                            featuresCol='scaledFeatures')))
-        #models.append(('AFTSurvivalRegression', AFTSurvivalRegression(labelCol=self.definer.className, \
+        #models.append(('AFTSurvivalRegression', AFTSurvivalRegression(labelCol=self.definer.response, \
         #                                                              featuresCol='scaledFeatures')))
         
         #Classification algorithms
-        models.append(('LogisticRegression', LogisticRegression(labelCol=self.definer.className,\
+        models.append(('LogisticRegression', LogisticRegression(labelCol=self.definer.response,\
                                                             featuresCol='scaledFeatures')))
-        models.append(('RandomForestClassifier', RandomForestClassifier(labelCol=self.definer.className,\
+        models.append(('RandomForestClassifier', RandomForestClassifier(labelCol=self.definer.response,\
                                                                                   featuresCol='scaledFeatures')))
        
 
         return models
 
-    def defineTrainingData(self, test_size=0.33, seed=7):
+    def split_data(self, test_size=0.33, seed=7):
         """ Need to fill """
 
         train, test = self.definer.data.randomSplit([1-test_size, test_size], seed=seed)
@@ -104,7 +104,7 @@ class Evaluate():
         Evaluate.train = train
         Evaluate.test = test
 
-    def buildPipelines(self, models):
+    def build_pipelines(self, models):
         pipelines = []
 
         for m in models:
@@ -113,14 +113,16 @@ class Evaluate():
 
         Evaluate.pipelines = pipelines
 
-    def evaluatePipelines(self, ax=None):
+    def evaluate_pipelines(self, ax=None):
 
         test_size = 0.2
         num_folds = 10
         seed = 7
-        #score = "r2"
         score = "accuracy"
-        self.defineTrainingData(test_size, seed)
+
+        #score = "r2"
+        
+        self.split_data(test_size, seed)
 
         report = [["Model", "Score", "Time"]]
         names = []
@@ -128,8 +130,9 @@ class Evaluate():
 
         for name, pipeline in Evaluate.pipelines:
             
-            #evaluator = RegressionEvaluator(labelCol=self.definer.className, predictionCol="prediction", metricName=score)
-            evaluator = MulticlassClassificationEvaluator(labelCol=self.definer.className, predictionCol="prediction", metricName=score)
+
+            #evaluator = RegressionEvaluator(labelCol=self.definer.response, predictionCol="prediction", metricName=score)
+            evaluator = MulticlassClassificationEvaluator(labelCol=self.definer.response, predictionCol="prediction", metricName=score)
             paramGrid = ParamGridBuilder()\
             .build()
     
@@ -148,17 +151,21 @@ class Evaluate():
             total_time += duration / 60.0
             # save the model to disk
             filename = name+'.ml'
+            
+            #cvModel.bestModel.save("hdfs://King:9000/user/bdata/mta_pipelines/"+filename)
+            total_time += duration
+            # save the model to disk
+            filename = name+'.ml'
             #cvModel.bestModel.save('./models/'+filename)
             #pickle.dump(model, open('./models/'+filename, 'wb'))
     
             names.append(name)
             report.append([name, metric, duration/60.0])
-            #print(report_print)
 
         
-        report.append(['Total time', 0.0, total_time])
+        report.append(['Total time', 0.0, total_time/60.0])
         headers = report.pop(0)
-        df_report = self.definer.sparkSession.createDataFrame(report, headers)
+        df_report = self.definer.spark_session.createDataFrame(report, headers)
         self.chooseTopRanked(df_report)
         #self.plotModels(results, names)
 
@@ -167,21 +174,21 @@ class Evaluate():
         """" Sort the models by its score"""
              
         Evaluate.report = report.sort(col("Score").desc())
-        Evaluate.report.write.overwrite().csv('hdfs://King:9000/user/bdata/cern/report.csv', header=True)
+        #Evaluate.report.write.overwrite().csv('hdfs://King:9000/user/bdata/cern/report.csv', header=True)
         
         Evaluate.report.show(truncate=False)
 
     def setBestPipelines(self):
         alg = list(Evaluate.report.Model)[0:2]
-        bestPipelines = []
+        best_pipelines = []
 
         for p in Evaluate.pipelines:
             if p[0] in alg:
-                bestPipelines.append(p)
+                best_pipelines.append(p)
 
-        Evaluate.bestPipelines = bestPipelines
+        Evaluate.best_pipelines = best_pipelines
 
-        #print(Evaluate.bestPipelines)
+        #print(Evaluate.best_pipelines)
 
     def plotModels(self, results, names):
         """" Plot the best two algorithms by using box plots"""

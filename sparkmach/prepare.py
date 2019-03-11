@@ -27,10 +27,10 @@ class Prepare():
 
     def __init__(self, definer):
         self.definer = definer
-        self.typeModel = definer.typeModel
-        self.typeAlgorithm = definer.typeAlgorithm
-        self.className = definer.className
-        self.nameData = definer.nameData
+        self.problem_type = definer.problem_type
+        self.infer_algorithm = definer.infer_algorithm
+        self.response = definer.response
+        self.data_path = definer.data_path
 
     def pipeline(self):
         """ This function chooses the best way to scale a data"""
@@ -44,12 +44,12 @@ class Prepare():
         assembler = VectorAssembler(inputCols=self.definer.X.columns, outputCol="features")
         transformers.append(assembler)
 
-        if self.typeAlgorithm in ["NeuralN", "K-N"]:
+        if self.infer_algorithm in ["NeuralN", "K-N"]:
             minmax = MinMaxScaler(inputCol="features", outputCol="scaledFeatures")
             normalizer = Normalizer(inputCol="features", outputCol="scaledFeatures")
             transformers.append(minmax)
             transformers.append(normalizer)
-        elif self.typeAlgorithm in ["LinearR", "LogisticR"]:
+        elif self.infer_algorithm in ["LinearR", "LogisticR"]:
             #scaler = RobustScaler()
             scaler = StandardScaler(inputCol='features', outputCol="scaledFeatures", 
                                     withMean = True, withStd = True)
@@ -60,7 +60,7 @@ class Prepare():
             transformers.append(scaler)
 
         #For clasification    
-        #stringIndexer = StringIndexer(inputCol=self.className, outputCol=self.className+"Index")
+        #stringIndexer = StringIndexer(inputCol=self.response, outputCol=self.response+"Index")
         #transformers.append(stringIndexer)
         
         return transformers

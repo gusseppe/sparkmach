@@ -29,9 +29,9 @@ except:
     
 #name = "datasets/buses_10000_filtered.csv"
 name = "hdfs://King:9000/user/bdata/buses_10000_filtered.csv"
-className = "tiempoRecorrido"
+response = "tiempoRecorrido"
 
-sparkSession = SparkSession.builder \
+spark_session = SparkSession.builder \
 .master('spark://King:7077') \
 .appName("Sparkmach") \
 .config("spark.driver.allowMultipleContexts", "true")\
@@ -46,14 +46,14 @@ sparkSession = SparkSession.builder \
 #sparkContext = SparkContext(conf=conf)
 
 currentDir = os.getcwd()
-sparkSession.sparkContext.addPyFile(currentDir + "/define.py")
-#sparkSession.sparkContext.addPyFile("/home/vagrant/tesis/sparkmach/sparkmach/sparkmach/analyze.py")
-sparkSession.sparkContext.addPyFile(currentDir + "/prepare.py")
-sparkSession.sparkContext.addPyFile(currentDir + "/feature_selection.py")
-sparkSession.sparkContext.addPyFile(currentDir + "/evaluate.py")
+spark_session.sparkContext.addPyFile(currentDir + "/define.py")
+#spark_session.sparkContext.addPyFile("/home/vagrant/tesis/sparkmach/sparkmach/sparkmach/analyze.py")
+spark_session.sparkContext.addPyFile(currentDir + "/prepare.py")
+spark_session.sparkContext.addPyFile(currentDir + "/feature_selection.py")
+spark_session.sparkContext.addPyFile(currentDir + "/evaluate.py")
 
 # STEP 0: Define workflow parameters
-definer = define.Define(sparkSession, nameData=name, className=className).pipeline()
+definer = define.Define(spark_session, data_path=name, response=response).pipeline()
 
 # STEP 1: Analyze data by ploting it
 # analyze.Analyze(definer).pipeline()

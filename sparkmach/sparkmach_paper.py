@@ -14,11 +14,11 @@ from pyspark.sql.types import *
 
 #name = "datasets/buses_10000_filtered.csv"
 name = "hdfs://King:9000/user/bdata/cern/hepmass_2000000_report.csv"
-className = "label"
+response = "label"
 #master = 'local[*]''
 master_name = 'King:9000'
 
-sparkSession = SparkSession.builder \
+spark_session = SparkSession.builder \
 .master(master_name)\
 .appName("Sparkmach") \
 .config("spark.driver.allowMultipleContexts", "true")\
@@ -27,16 +27,16 @@ sparkSession = SparkSession.builder \
 currentDir = os.getcwd()
 
 #Gusseppe
-sparkSession.sparkContext.addPyFile(currentDir + "/define.py")
-sparkSession.sparkContext.addPyFile(currentDir + "/prepare.py")
-sparkSession.sparkContext.addPyFile(currentDir + "/feature_selection.py")
-sparkSession.sparkContext.addPyFile(currentDir + "/evaluate.py")
+spark_session.sparkContext.addPyFile(currentDir + "/define.py")
+spark_session.sparkContext.addPyFile(currentDir + "/prepare.py")
+spark_session.sparkContext.addPyFile(currentDir + "/feature_selection.py")
+spark_session.sparkContext.addPyFile(currentDir + "/evaluate.py")
 
 
 # print('hellllooo')
 
 # STEP 0: Define workflow parameters
-definer = define.Define(sparkSession, nameData=name, className=className, df=df).pipeline()
+definer = define.Define(spark_session, data_path=name, response=response, df=df).pipeline()
 
 # STEP 1: Analyze data by ploting it
 #analyze.Analyze(definer).pipeline()

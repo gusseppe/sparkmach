@@ -30,6 +30,7 @@ from pyspark.ml.classification import RandomForestClassifier
 from pyspark.ml.classification import GBTClassifier
 from pyspark.ml.classification import MultilayerPerceptronClassifier
 from pyspark.ml.classification import NaiveBayes
+from pyspark.ml.classification import LinearSVC
 from pyspark.ml.evaluation import MulticlassClassificationEvaluator
 
 #Regression algorithms
@@ -42,15 +43,8 @@ from pyspark.ml.regression import AFTSurvivalRegression
 from pyspark.ml.evaluation import RegressionEvaluator
 
 
-
-class Evaluate():
+class Evaluate:
     """ A class for resampling and evaluation """
-
-    report = None
-    bestPipelines = None
-    pipelines = None
-    train = None
-    test = None
 
 
     def __init__(self, definer, preparer, featurer):
@@ -58,94 +52,135 @@ class Evaluate():
         self.preparer = preparer
         self.featurer = featurer
 
+        if definer is not None:
+            self.problem_type = definer.problem_type
+        self.plot_html = None
+
+        self.report = None
+        self.raw_report = None
+        self.best_pipelines = None
+        self.pipelines = None
+        self.estimators = None
+        # self.X_train = None
+        # self.y_train = None
+        # self.X_test = None
+        # self.y_test = None
+        # self.y_pred = None
+        self.train = None
+        self.test = None
+
+        self.metrics = dict()
+        self.feature_importance = dict()
+
+        self.test_size = 0.3
+        self.num_folds = 10
+        self.seed = 7
 
     def pipeline(self):
 
         #evaluators = []
-        self.buildPipelines(self.defineAlgorithms())
-        self.evaluatePipelines()
+        self.build_pipelines(self.set_models())
+        self.evaluate_pipelines()
         #self.setBestPipelines()
 
         #[m() for m in evaluators]
         return self
 
-    def defineAlgorithms(self):
+    def set_models(self):
 
         models = []
 
-        #Regression algorithms
-        #models.append(('LinearRegression', LinearRegression(labelCol=self.definer.className,\
-        #                                                    featuresCol='scaledFeatures')))
-        #models.append(('GeneralizedLinearRegression', GeneralizedLinearRegression(labelCol=self.definer.className,\
-        #                                                                          featuresCol='scaledFeatures')))
-        #models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.className, \
-        #                                                              featuresCol='scaledFeatures')))
-        #models.append(('RandomForestRegressor', RandomForestRegressor(labelCol=self.definer.className, \
-        #                                                              featuresCol='scaledFeatures')))
-        #models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.className, \
-        #                                            featuresCol='scaledFeatures')))
-        #models.append(('AFTSurvivalRegression', AFTSurvivalRegression(labelCol=self.definer.className, \
-        #                                                              featuresCol='scaledFeatures')))
-        
-        #Classification algorithms
-        models.append(('LogisticRegression', LogisticRegression(labelCol=self.definer.className,\
-                                                            featuresCol='scaledFeatures')))
-        models.append(('RandomForestClassifier', RandomForestClassifier(labelCol=self.definer.className,\
-                                                                                  featuresCol='scaledFeatures')))
-       
+        if self.problem_type == 'classification':
+
+            #Classification algorithms
+            models.append(('LogisticRegression', LogisticRegression(labelCol=self.definer.response, \
+                                                                    featuresCol='scaledFeatures')))
+            models.append(('RandomForestClassifier', RandomForestClassifier(labelCol=self.definer.response, \
+                                                                            featuresCol='scaledFeatures')))
+
+            models.append(('DecisionTreeClassifier', DecisionTreeClassifier(labelCol=self.definer.response, \
+                                                                            featuresCol='scaledFeatures')))
+            models.append(('GBTClassifier', GBTClassifier(labelCol=self.definer.response, \
+                                                                            featuresCol='scaledFeatures')))
+            models.append(('LinearSVC', LinearSVC(labelCol=self.definer.response, \
+                                                                   featuresCol='scaledFeatures')))
+            # models.append(('RandomForestClassifier', MultilayerPerceptronClassifier(labelCol=self.definer.response, \
+            #                                                        featuresCol='scaledFeatures')))
+            # models.append(('RandomForestClassifier', NaiveBayes(labelCol=self.definer.response, \
+            #                                                                         featuresCol='scaledFeatures')))
+        else:
+
+            #Regression algorithms
+            models.append(('LinearRegression', LinearRegression(labelCol=self.definer.response,\
+                                                               featuresCol='scaledFeatures')))
+            models.append(('GeneralizedLinearRegression', GeneralizedLinearRegression(labelCol=self.definer.response,\
+                                                                                     featuresCol='scaledFeatures')))
+            models.append(('DecisionTreeRegressor', DecisionTreeRegressor(labelCol=self.definer.response, \
+                                                                         featuresCol='scaledFeatures')))
+            models.append(('RandomForestRegressor', RandomForestRegressor(labelCol=self.definer.response, \
+                                                                         featuresCol='scaledFeatures')))
+            models.append(('GBTRegressor', GBTRegressor(labelCol=self.definer.response, \
+                                                       featuresCol='scaledFeatures')))
+            models.append(('AFTSurvivalRegression', AFTSurvivalRegression(labelCol=self.definer.response, \
+                                                                         featuresCol='scaledFeatures')))
 
         return models
 
-    def defineTrainingData(self, test_size=0.33, seed=7):
+    def split_data(self, test_size=0.33, seed=7):
         """ Need to fill """
 
         train, test = self.definer.data.randomSplit([1-test_size, test_size], seed=seed)
         
-        Evaluate.train = train
-        Evaluate.test = test
+        self.train = train
+        self.test = test
 
-    def buildPipelines(self, models):
+    def build_pipelines(self, models):
         pipelines = []
 
         for m in models:
             chains = self.preparer + self.featurer + [m[1]]
             pipelines.append((m[0], Pipeline(stages=chains)))
 
-        Evaluate.pipelines = pipelines
+        self.pipelines = pipelines
 
-    def evaluatePipelines(self, ax=None):
+    def evaluate_pipelines(self):
 
-        test_size = 0.2
-        num_folds = 10
-        seed = 7
-        score = "accuracy"
+        test_size = self.test_size
+        num_folds = self.num_folds
+        seed = self.seed
+        if self.definer.problem_type == 'classification':
+            metric_name = 'accuracy'
+        else:
+            metric_name = 'r2'
 
-        #score = "r2"
-        
-        self.defineTrainingData(test_size, seed)
+        self.split_data(test_size, seed)
 
         report = [["Model", "Score", "Time"]]
         names = []
         total_time = 0.0
 
-        for name, pipeline in Evaluate.pipelines:
-            
+        for name, pipeline in self.pipelines:
+            print("Model: ", name)
+            if self.definer.problem_type == 'classification':
+                evaluator = MulticlassClassificationEvaluator(labelCol=self.definer.response,
+                                                              predictionCol="prediction",
+                                                              metricName=metric_name)
+            else:
+                evaluator = RegressionEvaluator(labelCol=self.definer.response,
+                                                predictionCol="prediction",
+                                                metricName=metric_name)
 
-            #evaluator = RegressionEvaluator(labelCol=self.definer.className, predictionCol="prediction", metricName=score)
-            evaluator = MulticlassClassificationEvaluator(labelCol=self.definer.className, predictionCol="prediction", metricName=score)
-            paramGrid = ParamGridBuilder()\
-            .build()
+            paramGrid = ParamGridBuilder().build()
     
             start = time.time()
             crossval = CrossValidator(estimator=pipeline,\
-                          estimatorParamMaps=paramGrid,\
-                          evaluator=evaluator,\
-                          numFolds=num_folds)
+                                      estimatorParamMaps=paramGrid,\
+                                      evaluator=evaluator,\
+                                      numFolds=num_folds)
             
-            
-            cvModel = crossval.fit(Evaluate.train)
+            cvModel = crossval.fit(self.train)
             end = time.time()
-            prediction = cvModel.transform(Evaluate.test)
+            prediction = cvModel.transform(self.test)
             metric = evaluator.evaluate(prediction)
             duration = end-start
             total_time += duration / 60.0
@@ -163,9 +198,9 @@ class Evaluate():
             report.append([name, metric, duration/60.0])
 
         
-        report.append(['Total time', 0.0, total_time])
+        report.append(['Total time', 0.0, total_time/60.0])
         headers = report.pop(0)
-        df_report = self.definer.sparkSession.createDataFrame(report, headers)
+        df_report = self.definer.spark_session.createDataFrame(report, headers)
         self.chooseTopRanked(df_report)
         #self.plotModels(results, names)
 
@@ -173,22 +208,22 @@ class Evaluate():
     def chooseTopRanked(self, report):
         """" Sort the models by its score"""
              
-        Evaluate.report = report.sort(col("Score").desc())
-        Evaluate.report.write.overwrite().csv('hdfs://King:9000/user/bdata/cern/report.csv', header=True)
+        self.report = report.sort(col("Score").desc())
+        #self.report.write.overwrite().csv('hdfs://King:9000/user/bdata/cern/report.csv', header=True)
         
-        Evaluate.report.show(truncate=False)
+        self.report.show(truncate=False)
 
     def setBestPipelines(self):
-        alg = list(Evaluate.report.Model)[0:2]
-        bestPipelines = []
+        alg = list(self.report.Model)[0:2]
+        best_pipelines = []
 
-        for p in Evaluate.pipelines:
+        for p in self.pipelines:
             if p[0] in alg:
-                bestPipelines.append(p)
+                best_pipelines.append(p)
 
-        Evaluate.bestPipelines = bestPipelines
+        self.best_pipelines = best_pipelines
 
-        #print(Evaluate.bestPipelines)
+        #print(self.best_pipelines)
 
     def plotModels(self, results, names):
         """" Plot the best two algorithms by using box plots"""

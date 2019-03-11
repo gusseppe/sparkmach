@@ -34,17 +34,17 @@ class Analyze():
 
         Parameters
         ----------
-        typeModel : string
+        problem_type : string
             String that indicates if the model will be train for clasification
             or regression.
-        className : string
+        response : string
             String that indicates which column in the dataset is the class.
 
         """
-        self.typeModel = definer.typeModel
-        self.typeAlgorithm = definer.typeAlgorithm
-        self.className = definer.className
-        self.nameData = definer.nameData
+        self.problem_type = definer.problem_type
+        self.infer_algorithm = definer.infer_algorithm
+        self.response = definer.response
+        self.data_path = definer.data_path
         self.data = definer.data
 
     def pipeline(self):
@@ -80,7 +80,7 @@ class Analyze():
         Serie showing the count of classes.
 
         """
-        return self.data.toPandas().groupby(self.className).size()
+        return self.data.toPandas().groupby(self.response).size()
 
     def hist(self, ax=None):
         #plt.figure(figsize=(10.8, 3.6))

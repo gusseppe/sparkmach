@@ -11,7 +11,7 @@ dar una idea de los posibles algoritmos que pueden ser usados.
 
 
 from pyspark.sql import SQLContext
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col, rand, randn, when
 #from pyspark import SparkContext, SparkConf#version 1.62
 
         
@@ -20,29 +20,40 @@ from pyspark.sql.functions import col
 #except ImportError:
 #    from pyspark.mllib.linalg import Vectors#Version 1.62
 
-class Define():
+class Define:
 
-    typeModel = 'clasification'
-    typeAlgorithm = 'LogisticR'
-    n_features = None
-    samples = None
-    data = None
-    header = None
-    X = None
-    y = None
+    def __init__(self,
+            spark_session,
+            data_path=None,
+            df=None,
+            header=None,
+            response='class',
+            num_features=None,
+            cat_features=None,
+            problem_type='classification'):
 
-    def __init__(self, sparkSession, nameData=None, header=None, className='class', df=None):
-        self.sparkSession = sparkSession
-        self.nameData = nameData
-        self.header = header
-        self.className = className
+        self.spark_session = spark_session
+        self.data_path = data_path
         self.df = df
+        self.header = header
+        self.response = response
+        self.metadata = dict()
+
+        self.problem_type = problem_type
+        self.infer_algorithm = 'LogisticR'
+        self.n_features = None
+        self.num_features = num_features
+        self.cat_features = cat_features
+        self.samples = None
+        self.size = None
+        self.data = None
+        self.X = None
+        self.y = None
 
     def pipeline(self):
 
-        definers = []
+        definers = list()
         definers.append(self.read)
-        #definers.append(self.toVectors)
         definers.append(self.description)
 
         [m() for m in definers]
@@ -58,58 +69,44 @@ class Define():
 
         """
         try:   
-            #sqlContext = SQLContext(self.sparkcontext)#version 1.62
-            #spark = SparkSession \
-            #.builder \
-            #.appName("Sparkmach") \
-            #.config("spark.some.config.option", "some-value") \
-            #.getOrCreate()
             if self.df is not None:
                 df = self.df.dropna()
-                
-                #df = df.withColumn("class", col("class").cast('float'))
-                #df = df.withColumn("bus_id", col("bus_id").cast('float'))
-                #df = df.withColumn("direction", col("direction").cast('float'))
-                #df = df.withColumn("half_hour_bucket", col("half_hour_bucket").cast('float'))
-                
-                
-                Define.data = df.dropna()
+                              
+                self.data = df.dropna()
                 
                 if self.header is not None:
-                    Define.header = self.header
+                    self.header = self.header
 
-
-                Define.X = Define.data.drop(self.className)#.show()
-                Define.y = Define.data.select(self.className)
+                self.X = self.data.drop(self.response)#.show()
+                self.y = self.data.select(self.response)
                 
-            elif self.nameData is not None and self.className is not None: 
-                df = self.sparkSession.read\
-                .format("csv")\
-                .option("header", "true")\
-                .option("mode", "DROPMALFORMED")\
-                .option("inferSchema", "true")\
-                .csv(self.nameData)
+            elif self.data_path is not None and self.response is not None:
+                df = self.spark_session.read\
+                    .format("csv")\
+                    .option("header", "true")\
+                    .option("mode", "DROPMALFORMED")\
+                    .option("inferSchema", "true")\
+                    .csv(self.data_path)
 
                 df = df.dropna()
-                Define.data = df
+                self.data = df
                 
                 if self.header is not None:
-                    Define.header = self.header
+                    self.header = self.header
 
+                self.X = self.data.drop(self.response)#.show()
+                self.y = self.data.select(self.response)
 
-                Define.X = Define.data.drop(self.className)#.show()
-                Define.y = Define.data.select(self.className)
-                
-                
-        except:
-            print ("Error reading")        
+        except Exception as e:
+
+            print("Error reading  | ", e)
 
     def description(self):
-        Define.n_features = len(Define.X.columns)
-        Define.samples = Define.data.count()
-
+        self.n_features = len(self.X.columns)
+        self.samples = self.data.count()
+    
     #def likelyAlgorithms(self):
-        #if Define.samples < 50:
+        #if self.samples < 50:
             #print("Not enough data")
         #else:
             #pass

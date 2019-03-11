@@ -23,10 +23,10 @@ class FeatureSelection():
     data = None
 
     def __init__(self, definer):
-        self.typeModel = definer.typeModel
-        self.typeAlgorithm = definer.typeAlgorithm
-        self.className = definer.className
-        self.nameData = definer.nameData
+        self.problem_type = definer.problem_type
+        self.infer_algorithm = definer.infer_algorithm
+        self.response = definer.response
+        self.data_path = definer.data_path
         self.n_features = definer.n_features
 
     def pipeline(self):
@@ -39,7 +39,7 @@ class FeatureSelection():
         n_features = int(self.n_features/2)
 
         #chisq = ChiSqSelector(numTopFeatures=n_features, featuresCol="scaledFeatures",
-        #                 outputCol="selectedFeatures", labelCol=self.className+"Index")
+        #                 outputCol="selectedFeatures", labelCol=self.response+"Index")
         #transformers.append(chisq)
 
 
