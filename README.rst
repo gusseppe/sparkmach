@@ -2,20 +2,16 @@
 sparkmach
 ===============================
 
+Code repository for the paper: "Sparkmach: A Distributed Data Processing System Based on Automated Machine Learning for Big Data". Link:
 
-.. image:: https://img.shields.io/pypi/v/sparkmach.svg
-        :target: https://pypi.python.org/pypi/sparkmach
+    - https://link.springer.com/chapter/10.1007/978-3-030-11680-4_13
 
-.. image:: https://img.shields.io/travis/gusseppe/sparkmach.svg
-        :target: https://travis-ci.org/gusseppe/sparkmach
 
 .. image:: https://readthedocs.org/projects/sparkmach/badge/?version=latest
         :target: https://sparkmach.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://pyup.io/repos/github/gusseppe/sparkmach/shield.svg
-     :target: https://pyup.io/repos/github/gusseppe/sparkmach/
-     :alt: Updates
+
 
 
 Sparkmach is a tool based on PySpark to accelerate the development of Machine Learning models by looking for the best model for your data.
